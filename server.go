@@ -23,15 +23,11 @@ type EchoMsg struct {
 }
 
 func (s *TestService) Echo(msg *EchoMsg) (*EchoMsg, error) {
-	sign := msg.Signature[:len(msg.Signature)-1] // remove recovery id
-	hash := eth.Keccak256(msg.Data)
-	verified := eth.VerifySignature(msg.PubKey, hash, sign)
-
-	if !verified {
-		return nil, errors.New("Failed to verify signed message")
+	if Decode(msg) {
+		return Encode("pong", privKey)
 	}
 
-	return Encode("pong", privKey)
+	return nil, errors.New("Failed to verify signed message")
 }
 
 func newServer(addr string) error {
